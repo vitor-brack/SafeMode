@@ -63,10 +63,13 @@ A tela de PIN segue outro caminho. O `LockScreenService` fica esperando a tela a
 | `LocationManager` | Lê a localização do GPS e da rede e escolhe a mais precisa e recente |
 | `LocationSetupActivity` | O mapa onde se marca o centro e o raio da área segura |
 | `LockScreenService` e `LockScreenActivity` | Abrem a tela de PIN quando a tela acende e a mantêm na frente |
-| `PinManager` | Guarda os dois PINs com hash e salt e diz qual deles foi digitado |
+| `PinManager` | Guarda os dois PINs no `SharedPreferences` e diz qual deles foi digitado |
+| `PinVerifier` | Calcula o hash com salt e confere o PIN, sem depender do Android. É a parte com testes unitários |
 | `SafeModeLauncherActivity` | O launcher em grade, que esconde os apps escolhidos no modo oculto |
 | `AppPreferences` e `BlockLogger` | Configurações e histórico de bloqueios, em `SharedPreferences` |
 | `BootReceiver` | Religa os serviços depois de reiniciar o celular ou atualizar o app |
+
+As classes ficam em pacotes de `com.example.safemode`: `ui` (as telas, os adaptadores das listas e a `MapFriendlyScrollView`), `service` (os serviços e o `BootReceiver`), `location` (o `LocationManager`), `security` (o `PinManager` e o `PinVerifier`), `data` (as configurações, o histórico de bloqueios e os modelos `AppInfo` e `LauncherAppInfo`) e `util` (as consultas de acessibilidade e de estatísticas de uso).
 
 ## Permissões
 
@@ -115,7 +118,7 @@ O telefone, o discador, a tela de chamada, as chamadas de emergência, a interfa
 
 ### 7. PINs com hash e salt
 
-Os PINs não ficam em texto puro. Para cada PIN, o `PinManager` gera um salt aleatório de 16 bytes com `SecureRandom` e guarda o salt e o hash SHA-256 do salt seguido do PIN.
+Os PINs não ficam em texto puro. Para cada PIN, o `PinVerifier` gera um salt aleatório de 16 bytes com `SecureRandom` e calcula o hash SHA-256 do salt seguido do PIN, e o `PinManager` guarda os dois.
 
 ## Como rodar
 
@@ -145,6 +148,8 @@ Para usar a tela de PIN, toque em **Definir como launcher padrão**, em **Config
 
 No emulador, dá para simular a saída da área mudando a localização com `adb emu geo fix <longitude> <latitude>`. O bloqueio pode levar até 5 minutos para mudar, pelo motivo explicado em [Como funciona](#como-funciona).
 
+Os testes unitários do `PinVerifier` não precisam de celular nem de emulador: `./gradlew testDebugUnitTest` (no Windows, `gradlew.bat testDebugUnitTest`).
+
 ## Limitações
 
 - As Configurações do Android nunca são bloqueadas. Com o celular desbloqueado, dá para desligar o serviço de acessibilidade ou desinstalar o SafeMode por lá.
@@ -161,8 +166,8 @@ No emulador, dá para simular a saída da área mudando a localização com `adb
 - Esconder os dígitos na tela de PIN. Os campos são `numberPassword`, mas os números continuam visíveis depois de digitados
 - Pedir as permissões de notificação e de localização em segundo plano, que estão no manifesto mas não são pedidas
 - Limpar a configuração: tirar do manifesto as permissões que o código não usa e os serviços `LocationService` e `BlockOverlayService`, que nada inicia, e desligar no `accessibility_service_config.xml` o `canRetrieveWindowContent`, que o SafeMode não usa
-- Separar as 27 classes em pacotes e dividir a `MainActivity`, que tem 681 linhas
-- Escrever testes unitários para o `PinManager` e para a conta da distância até a área
+- Dividir a `MainActivity`, que tem 681 linhas
+- Escrever testes unitários para a conta da distância até a área. Ela aparece repetida no `LocationManager`, no `LocationService` e no `SafeModeAccessibilityService`, e cada cópia chama o `Location.distanceBetween` do Android
 
 ## Licença
 
