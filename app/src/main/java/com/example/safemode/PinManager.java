@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
+import com.example.safemode.security.PinVerifier;
 
 /**
  * Gerenciador de PINs do aplicativo SafeMode.
- * Responsável por armazenar, verificar e validar PINs de forma segura usando hash SHA-256
- * com salt aleatório. Gerencia tanto o PIN principal quanto o PIN secundário.
+ * Guarda e lê os PINs no SharedPreferences (hash SHA-256 com salt aleatório, em Base64).
+ * As regras de hash e conferência ficam em {@link PinVerifier}, que não depende do Android.
+ * Gerencia tanto o PIN principal quanto o PIN secundário.
  */
 public class PinManager {
 
@@ -29,44 +28,13 @@ public class PinManager {
 
     // Define o PIN principal de 4 dígitos com hash seguro usando SHA-256
     public boolean setPin(String pin) {
-        try {
-            if (pin == null || pin.length() != 4) {
-                return false;
-            }
-
-            byte[] salt = generateSalt();
-            String hash = hashPin(pin, salt);
-
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(KEY_PIN_HASH, hash);
-            editor.putString(KEY_PIN_SALT, Base64.encodeToString(salt, Base64.NO_WRAP));
-            return editor.commit();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return savePin(pin, KEY_PIN_HASH, KEY_PIN_SALT);
     }
 
     // Verifica se o PIN principal informado corresponde ao armazenado
     public boolean verifyPin(String pin) {
         try {
-            if (pin == null || pin.length() != 4) {
-                return false;
-            }
-
-            String storedHash = preferences.getString(KEY_PIN_HASH, null);
-            String storedSaltString = preferences.getString(KEY_PIN_SALT, null);
-
-            if (storedHash == null || storedSaltString == null) {
-                return true;
-            }
-
-            byte[] salt = Base64.decode(storedSaltString, Base64.NO_WRAP);
-            String hash = hashPin(pin, salt);
-
-            return hash.equals(storedHash);
-
+            return PinVerifier.verifyPrimary(pin, readBytes(KEY_PIN_SALT), readBytes(KEY_PIN_HASH));
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -89,44 +57,14 @@ public class PinManager {
 
     // Define o PIN secundário de 4 dígitos com hash seguro usando SHA-256
     public boolean setSecondaryPin(String pin) {
-        try {
-            if (pin == null || pin.length() != 4) {
-                return false;
-            }
-
-            byte[] salt = generateSalt();
-            String hash = hashPin(pin, salt);
-
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(KEY_SECONDARY_PIN_HASH, hash);
-            editor.putString(KEY_SECONDARY_PIN_SALT, Base64.encodeToString(salt, Base64.NO_WRAP));
-            return editor.commit();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return savePin(pin, KEY_SECONDARY_PIN_HASH, KEY_SECONDARY_PIN_SALT);
     }
 
     // Verifica se o PIN secundário informado corresponde ao armazenado
     public boolean verifySecondaryPin(String pin) {
         try {
-            if (pin == null || pin.length() != 4) {
-                return false;
-            }
-
-            String storedHash = preferences.getString(KEY_SECONDARY_PIN_HASH, null);
-            String storedSaltString = preferences.getString(KEY_SECONDARY_PIN_SALT, null);
-
-            if (storedHash == null || storedSaltString == null) {
-                return false;
-            }
-
-            byte[] salt = Base64.decode(storedSaltString, Base64.NO_WRAP);
-            String hash = hashPin(pin, salt);
-
-            return hash.equals(storedHash);
-
+            return PinVerifier.verifySecondary(pin,
+                    readBytes(KEY_SECONDARY_PIN_SALT), readBytes(KEY_SECONDARY_PIN_HASH));
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -149,20 +87,30 @@ public class PinManager {
         return 0;
     }
 
-    // Gera um salt aleatório de 16 bytes para aumentar a segurança do hash
-    private byte[] generateSalt() {
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-        return salt;
+    // Gera um salt novo, calcula o hash e grava os dois em Base64 sob as chaves informadas
+    private boolean savePin(String pin, String hashKey, String saltKey) {
+        try {
+            if (!PinVerifier.isWellFormed(pin)) {
+                return false;
+            }
+
+            byte[] salt = PinVerifier.newSalt();
+            byte[] hash = PinVerifier.hash(pin, salt);
+
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(hashKey, Base64.encodeToString(hash, Base64.NO_WRAP));
+            editor.putString(saltKey, Base64.encodeToString(salt, Base64.NO_WRAP));
+            return editor.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    // Gera o hash SHA-256 do PIN combinado com o salt
-    private String hashPin(String pin, byte[] salt) throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.reset();
-        digest.update(salt);
-        byte[] hash = digest.digest(pin.getBytes(StandardCharsets.UTF_8));
-        return Base64.encodeToString(hash, Base64.NO_WRAP);
+    // Lê um valor em Base64 do SharedPreferences; null se não existir
+    private byte[] readBytes(String key) {
+        String value = preferences.getString(key, null);
+        return value == null ? null : Base64.decode(value, Base64.NO_WRAP);
     }
 }
