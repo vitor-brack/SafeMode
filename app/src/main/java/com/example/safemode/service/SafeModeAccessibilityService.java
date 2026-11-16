@@ -1,7 +1,12 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.content.Intent;
 import android.view.accessibility.AccessibilityEvent;
+
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.data.BlockLogger;
+import com.example.safemode.location.LocationManager;
+import com.example.safemode.ui.SimpleBlockActivity;
 
 /**
  * Serviço de acessibilidade responsável por monitorar a abertura de aplicativos.

@@ -1,10 +1,9 @@
-package com.example.safemode;
+package com.example.safemode.security;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
-import com.example.safemode.security.PinVerifier;
 
 /**
  * Gerenciador de PINs do aplicativo SafeMode.

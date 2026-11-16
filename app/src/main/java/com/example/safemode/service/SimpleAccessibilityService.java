@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;

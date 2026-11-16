@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,9 +1,12 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+
+import com.example.safemode.ui.SimpleBlockActivity;
+import com.example.safemode.util.UsageStatsUtils;
 
 /**
  * Service responsável por verificar se o bloqueio de um aplicativo está funcionando corretamente.

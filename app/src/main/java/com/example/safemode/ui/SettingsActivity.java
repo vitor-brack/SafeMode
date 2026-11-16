@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -22,6 +22,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.data.BlockLogger;
+import com.example.safemode.service.SafeModeAccessibilityService;
+import com.example.safemode.util.AccessibilityUtils;
+import com.example.safemode.util.UsageStatsUtils;
 
 /**
  * Activity de configurações do aplicativo SafeMode.

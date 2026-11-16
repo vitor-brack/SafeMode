@@ -1,8 +1,10 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.example.safemode.data.AppPreferences;
 
 /**
  * BroadcastReceiver que inicia os serviços do aplicativo após o boot do dispositivo.

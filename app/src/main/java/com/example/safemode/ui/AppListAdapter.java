@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppInfo;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -14,6 +14,10 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppInfo;
+import com.example.safemode.data.AppPreferences;
 
 import java.util.ArrayList;
 import java.util.Collections;

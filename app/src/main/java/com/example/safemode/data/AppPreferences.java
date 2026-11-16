@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;

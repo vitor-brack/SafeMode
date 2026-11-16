@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,6 +15,10 @@ import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.ui.MainActivity;
 
 /**
  * Service em foreground que monitora continuamente a localização do dispositivo.

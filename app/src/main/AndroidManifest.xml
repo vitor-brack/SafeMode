@@ -71,7 +71,7 @@
 
         <!-- Activity de bloqueio com overlay transparente sobre apps bloqueados -->
         <activity
-            android:name=".SimpleBlockActivity"
+            android:name=".ui.SimpleBlockActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:excludeFromRecents="true"
@@ -83,7 +83,7 @@
 
         <!-- Activity de tela de bloqueio customizada com PIN -->
         <activity
-            android:name=".LockScreenActivity"
+            android:name=".ui.LockScreenActivity"
             android:clearTaskOnLaunch="false"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
             android:excludeFromRecents="true"
@@ -98,7 +98,7 @@
 
         <!-- Launcher customizado que substitui a tela inicial padrão -->
         <activity
-            android:name=".SafeModeLauncherActivity"
+            android:name=".ui.SafeModeLauncherActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -114,7 +114,7 @@
 
         <!-- Activity principal do aplicativo -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -125,35 +125,35 @@
 
         <!-- Activity para seleção de apps a serem bloqueados -->
         <activity
-            android:name=".AppSelectionActivity"
+            android:name=".ui.AppSelectionActivity"
             android:exported="false"
             android:label="Selecionar Apps"
             android:parentActivityName=".MainActivity" />
 
         <!-- Activity para configurar localização permitida -->
         <activity
-            android:name=".LocationSetupActivity"
+            android:name=".ui.LocationSetupActivity"
             android:exported="false"
             android:label="Configurar Localização"
             android:parentActivityName=".MainActivity" />
 
         <!-- Activity de configurações e gerenciamento de permissões -->
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:exported="false"
             android:label="Configurações"
             android:parentActivityName=".MainActivity" />
 
         <!-- Activity para seleção de apps a serem ocultados -->
         <activity
-            android:name=".HiddenAppsSelectionActivity"
+            android:name=".ui.HiddenAppsSelectionActivity"
             android:exported="false"
             android:label="Apps para Ocultar"
             android:parentActivityName=".MainActivity" />
 
         <!-- Serviço de acessibilidade para monitorar e bloquear apps -->
         <service
-            android:name=".SafeModeAccessibilityService"
+            android:name=".service.SafeModeAccessibilityService"
             android:exported="false"
             android:label="Safe Mode"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -167,29 +167,29 @@
 
         <!-- Serviço para verificar e garantir que apps bloqueados permaneçam bloqueados -->
         <service
-            android:name=".BlockVerificationService"
+            android:name=".service.BlockVerificationService"
             android:exported="false" />
 
         <!-- Serviço foreground para monitoramento contínuo de localização -->
         <service
-            android:name=".LocationService"
+            android:name=".service.LocationService"
             android:exported="false"
             android:foregroundServiceType="location" />
 
         <!-- Serviço foreground principal do modo seguro -->
         <service
-            android:name=".SafeModeService"
+            android:name=".service.SafeModeService"
             android:exported="false"
             android:foregroundServiceType="location" />
 
         <!-- Serviço para exibir overlay de bloqueio sobre apps -->
         <service
-            android:name=".BlockOverlayService"
+            android:name=".service.BlockOverlayService"
             android:exported="false" />
 
         <!-- Serviço foreground para gerenciar tela de bloqueio customizada -->
         <service
-            android:name=".LockScreenService"
+            android:name=".service.LockScreenService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property
@@ -199,7 +199,7 @@
 
         <!-- Receiver para iniciar serviços ao ligar o dispositivo ou atualizar o app -->
         <receiver
-            android:name=".BootReceiver"
+            android:name=".service.BootReceiver"
             android:exported="true">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

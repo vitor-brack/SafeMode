@@ -12,7 +12,7 @@
         android:background="#1F3A5F" />
 
     <!-- ScrollView customizado que permite interação com o mapa -->
-    <com.example.safemode.MapFriendlyScrollView
+    <com.example.safemode.ui.MapFriendlyScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -234,7 +234,7 @@
 
         </LinearLayout>
 
-    </com.example.safemode.MapFriendlyScrollView>
+    </com.example.safemode.ui.MapFriendlyScrollView>
 
     <!-- Espaçador inferior (navigation bar) -->
     <View

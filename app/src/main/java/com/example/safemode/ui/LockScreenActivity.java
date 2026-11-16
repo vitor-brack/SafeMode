@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
@@ -19,6 +19,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.security.PinManager;
 
 import java.util.List;
 

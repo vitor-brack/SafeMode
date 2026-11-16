@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.util;
 
 import android.content.Context;
 import android.provider.Settings;

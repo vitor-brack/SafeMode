@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.location;
 
 import android.content.Context;
 import android.location.Location;
@@ -6,6 +6,8 @@ import android.location.LocationListener;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
+
+import com.example.safemode.data.AppPreferences;
 
 /**
  * Classe responsável por gerenciar a localização do dispositivo e verificar se está dentro de uma área permitida.

@@ -7,4 +7,4 @@
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="100"
-    android:settingsActivity="com.example.safemode.MainActivity" />
+    android:settingsActivity="com.example.safemode.ui.MainActivity" />

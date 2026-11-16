@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,6 +16,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.data.LauncherAppInfo;
 
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;

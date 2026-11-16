@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.ui;
 
 import android.content.Intent;
 import android.os.Build;
@@ -12,6 +12,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.security.PinManager;
+import com.example.safemode.service.LockScreenService;
+import com.example.safemode.service.SafeModeAccessibilityService;
+import com.example.safemode.service.SafeModeService;
+import com.example.safemode.util.AccessibilityUtils;
+import com.example.safemode.util.UsageStatsUtils;
 
 import java.util.HashSet;
 

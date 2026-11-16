@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -12,6 +12,10 @@ import android.os.Build;
 import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
+
+import com.example.safemode.R;
+import com.example.safemode.data.AppPreferences;
+import com.example.safemode.ui.LockScreenActivity;
 
 /**
  * Service em foreground que monitora quando a tela liga e exibe a tela de bloqueio.

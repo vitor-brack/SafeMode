@@ -1,4 +1,4 @@
-package com.example.safemode;
+package com.example.safemode.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.safemode.R;
 
 /**
  * Service responsável por exibir um overlay de bloqueio sobre aplicativos bloqueados.
