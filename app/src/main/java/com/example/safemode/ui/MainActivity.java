@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.safemode.R;
@@ -359,32 +358,11 @@ public class MainActivity extends AppCompatActivity {
             usageStatsCard.setVisibility(!hasUsageStats ? View.VISIBLE : View.GONE);
             accessibilityCard.setVisibility(!hasAccessibility ? View.VISIBLE : View.GONE);
 
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setView(dialogView)
-                    .setCancelable(false)
-                    .create();
-
-            Button btnGoToSettings = dialogView.findViewById(R.id.btnGoToSettings);
-            Button btnCancel = dialogView.findViewById(R.id.btnCancel);
-
-            btnGoToSettings.setOnClickListener(v -> {
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                dialog.dismiss();
-            });
-
-            btnCancel.setOnClickListener(v -> {
+            GoToSettingsDialog.show(this, dialogView, () -> {
                 if (switchSafeMode != null) {
                     switchSafeMode.setChecked(false);
                 }
-                dialog.dismiss();
             });
-
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            }
-
-            dialog.show();
 
         } catch (Exception e) {
             if (switchSafeMode != null) {
@@ -398,29 +376,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_location_permission, null);
 
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setView(dialogView)
-                    .setCancelable(false)
-                    .create();
-
-            Button btnGoToSettings = dialogView.findViewById(R.id.btnGoToSettings);
-            Button btnCancel = dialogView.findViewById(R.id.btnCancel);
-
-            btnGoToSettings.setOnClickListener(v -> {
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                dialog.dismiss();
-            });
-
-            btnCancel.setOnClickListener(v -> {
-                dialog.dismiss();
-            });
-
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            }
-
-            dialog.show();
+            GoToSettingsDialog.show(this, dialogView, null);
 
         } catch (Exception e) {
         }
@@ -505,32 +461,11 @@ public class MainActivity extends AppCompatActivity {
             if (!isDefaultLauncher()) {
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_launcher_required, null);
 
-                AlertDialog dialog = new AlertDialog.Builder(this)
-                        .setView(dialogView)
-                        .setCancelable(false)
-                        .create();
-
-                Button btnGoToSettings = dialogView.findViewById(R.id.btnGoToSettings);
-                Button btnCancel = dialogView.findViewById(R.id.btnCancel);
-
-                btnGoToSettings.setOnClickListener(v -> {
-                    Intent intent = new Intent(this, SettingsActivity.class);
-                    startActivity(intent);
-                    dialog.dismiss();
-                });
-
-                btnCancel.setOnClickListener(v -> {
+                GoToSettingsDialog.show(this, dialogView, () -> {
                     if (switchLockScreen != null) {
                         switchLockScreen.setChecked(false);
                     }
-                    dialog.dismiss();
                 });
-
-                if (dialog.getWindow() != null) {
-                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                }
-
-                dialog.show();
 
                 if (switchLockScreen != null) {
                     switchLockScreen.setChecked(false);
