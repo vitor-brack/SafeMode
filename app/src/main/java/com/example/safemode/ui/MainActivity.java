@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.safemode.R;
 import com.example.safemode.data.AppPreferences;
 import com.example.safemode.security.PinManager;
+import com.example.safemode.security.PinSetupRules;
 import com.example.safemode.service.LockScreenService;
 import com.example.safemode.service.SafeModeAccessibilityService;
 import com.example.safemode.service.SafeModeService;
@@ -593,16 +594,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             String pin = etPin.getText().toString();
 
-            if (pin.length() != 4) {
+            PinSetupRules.Result check = PinSetupRules.validatePrimary(pin,
+                    pinManager.hasSecondaryPin(), pinManager.verifySecondaryPin(pin));
+
+            if (check == PinSetupRules.Result.INVALID_LENGTH) {
                 Toast.makeText(this, "PIN deve ter 4 dígitos!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (pinManager.hasSecondaryPin()) {
-                if (pinManager.verifySecondaryPin(pin)) {
-                    Toast.makeText(this, "PIN principal não pode ser igual ao PIN secundário!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            if (check == PinSetupRules.Result.SAME_AS_SECONDARY) {
+                Toast.makeText(this, "PIN principal não pode ser igual ao PIN secundário!", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             if (pinManager.setPin(pin)) {
@@ -622,17 +624,20 @@ public class MainActivity extends AppCompatActivity {
         try {
             String pin = etSecondaryPin.getText().toString();
 
-            if (pin.length() != 4) {
+            PinSetupRules.Result check = PinSetupRules.validateSecondary(pin,
+                    pinManager.hasPin(), pinManager.verifyPin(pin));
+
+            if (check == PinSetupRules.Result.INVALID_LENGTH) {
                 Toast.makeText(this, "PIN secundário deve ter 4 dígitos!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (!pinManager.hasPin()) {
+            if (check == PinSetupRules.Result.PRIMARY_NOT_SET) {
                 Toast.makeText(this, "Configure o PIN principal primeiro!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (pinManager.verifyPin(pin)) {
+            if (check == PinSetupRules.Result.SAME_AS_PRIMARY) {
                 Toast.makeText(this, "PIN secundário deve ser diferente do principal!", Toast.LENGTH_SHORT).show();
                 return;
             }
