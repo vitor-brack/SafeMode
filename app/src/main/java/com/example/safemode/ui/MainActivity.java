@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.safemode.R;
 import com.example.safemode.data.AppPreferences;
+import com.example.safemode.security.LockScreenRules;
 import com.example.safemode.security.PinManager;
 import com.example.safemode.service.LockScreenService;
 import com.example.safemode.service.SafeModeService;
@@ -349,7 +350,11 @@ public class MainActivity extends AppCompatActivity {
     // Ativa a tela de bloqueio após verificar requisitos de launcher e PINs
     private void enableLockScreen() {
         try {
-            if (!PermissionChecker.isDefaultLauncher(this)) {
+            LockScreenRules.Requirement requirement = LockScreenRules.check(
+                    PermissionChecker.isDefaultLauncher(this),
+                    pinManager.hasPin(), pinManager.hasSecondaryPin());
+
+            if (requirement == LockScreenRules.Requirement.NOT_DEFAULT_LAUNCHER) {
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_launcher_required, null);
 
                 GoToSettingsDialog.show(this, dialogView, () -> {
@@ -365,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (!pinManager.hasPin()) {
+            if (requirement == LockScreenRules.Requirement.PRIMARY_PIN_MISSING) {
                 Toast.makeText(this, "Configure um PIN primeiro!", Toast.LENGTH_SHORT).show();
                 if (switchLockScreen != null) {
                     switchLockScreen.setChecked(false);
@@ -373,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (!pinManager.hasSecondaryPin()) {
+            if (requirement == LockScreenRules.Requirement.SECONDARY_PIN_MISSING) {
                 Toast.makeText(this, "Configure o PIN secundário primeiro!", Toast.LENGTH_SHORT).show();
                 if (switchLockScreen != null) {
                     switchLockScreen.setChecked(false);
