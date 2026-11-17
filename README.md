@@ -64,12 +64,14 @@ A tela de PIN segue outro caminho. O `LockScreenService` fica esperando a tela a
 | `LocationSetupActivity` | O mapa onde se marca o centro e o raio da área segura |
 | `LockScreenService` e `LockScreenActivity` | Abrem a tela de PIN quando a tela acende e a mantêm na frente |
 | `PinManager` | Guarda os dois PINs no `SharedPreferences` e diz qual deles foi digitado |
-| `PinVerifier` | Calcula o hash com salt e confere o PIN, sem depender do Android. É a parte com testes unitários |
+| `PinVerifier` | Calcula o hash com salt e confere o PIN, sem depender do Android |
+| `PinSetupRules` | As regras de cadastro dos PINs: 4 caracteres, diferente do outro PIN e principal antes do secundário. Também sem depender do Android |
+| `LockScreenRules` | Os requisitos para ligar a tela de PIN, nesta ordem: o SafeMode como launcher padrão, o PIN principal e o PIN secundário |
 | `SafeModeLauncherActivity` | O launcher em grade, que esconde os apps escolhidos no modo oculto |
 | `AppPreferences` e `BlockLogger` | Configurações e histórico de bloqueios, em `SharedPreferences` |
 | `BootReceiver` | Religa os serviços depois de reiniciar o celular ou atualizar o app |
 
-As classes ficam em pacotes de `com.example.safemode`: `ui` (as telas, os adaptadores das listas e a `MapFriendlyScrollView`), `service` (os serviços e o `BootReceiver`), `location` (o `LocationManager`), `security` (o `PinManager` e o `PinVerifier`), `data` (as configurações, o histórico de bloqueios e os modelos `AppInfo` e `LauncherAppInfo`) e `util` (as consultas de acessibilidade e de estatísticas de uso).
+As classes ficam em pacotes de `com.example.safemode`: `ui` (as telas, os adaptadores das listas, a `MapFriendlyScrollView` e dois auxiliares da tela principal: o `PinSetupController`, que cadastra os PINs, e o `GoToSettingsDialog`, o molde dos diálogos que levam às configurações), `service` (os serviços, o `FeatureServices`, que liga e desliga o Safe Mode e a tela de PIN, e o `BootReceiver`), `location` (o `LocationManager`), `security` (o `PinManager`, o `PinVerifier`, o `PinSetupRules` e o `LockScreenRules`), `data` (as configurações, o histórico de bloqueios e os modelos `AppInfo` e `LauncherAppInfo`) e `util` (as consultas de permissões, de acessibilidade e de estatísticas de uso).
 
 ## Permissões
 
@@ -83,7 +85,7 @@ O SafeMode depende de permissões que a maioria dos apps não pede. Algumas só 
 | Localização (`ACCESS_FINE_LOCATION` e `ACCESS_COARSE_LOCATION`) | Saber se o celular está dentro da área segura e mostrar a posição atual no mapa | `LocationManager` e `LocationSetupActivity` |
 | Serviço em primeiro plano do tipo localização (`FOREGROUND_SERVICE_LOCATION`) | Manter o serviço do Safe Mode ativo e a localização atualizada, com uma notificação que diz se o celular está dentro ou fora da área | `SafeModeService` |
 | Localização em segundo plano (`ACCESS_BACKGROUND_LOCATION`) | Está no manifesto, mas o app ainda não pede essa permissão. A localização vem do serviço em primeiro plano da linha acima | Nenhum |
-| Launcher padrão (filtro `HOME` no manifesto) | Esconder os apps no modo oculto, já que o launcher do sistema continuaria mostrando os ícones. Por isso a tela de PIN só liga com o SafeMode como launcher padrão | `SafeModeLauncherActivity`; a checagem fica em `MainActivity.enableLockScreen` |
+| Launcher padrão (filtro `HOME` no manifesto) | Esconder os apps no modo oculto, já que o launcher do sistema continuaria mostrando os ícones. Por isso a tela de PIN só liga com o SafeMode como launcher padrão | `SafeModeLauncherActivity`; a checagem fica em `PermissionChecker.isDefaultLauncher`, chamada pela `MainActivity.enableLockScreen` |
 | Ver todos os apps instalados (`QUERY_ALL_PACKAGES`) | Listar os apps para escolher quais bloquear e quais esconder, e montar o launcher | `AppSelectionActivity`, `HiddenAppsSelectionActivity` e `SafeModeLauncherActivity` |
 | Serviço em primeiro plano de uso especial (`FOREGROUND_SERVICE_SPECIAL_USE`) | Manter ativo o serviço que abre a tela de PIN quando a tela acende | `LockScreenService` |
 | Iniciar com o celular (`RECEIVE_BOOT_COMPLETED`) | Religar os serviços depois de reiniciar o celular ou atualizar o app | `BootReceiver` |
@@ -148,7 +150,7 @@ Para usar a tela de PIN, toque em **Definir como launcher padrão**, em **Config
 
 No emulador, dá para simular a saída da área mudando a localização com `adb emu geo fix <longitude> <latitude>`. O bloqueio pode levar até 5 minutos para mudar, pelo motivo explicado em [Como funciona](#como-funciona).
 
-Os testes unitários do `PinVerifier` não precisam de celular nem de emulador: `./gradlew testDebugUnitTest` (no Windows, `gradlew.bat testDebugUnitTest`).
+Os testes unitários das regras de PIN e da tela de PIN (`PinVerifier`, `PinSetupRules` e `LockScreenRules`) não precisam de celular nem de emulador: `./gradlew testDebugUnitTest` (no Windows, `gradlew.bat testDebugUnitTest`).
 
 ## Limitações
 
@@ -166,7 +168,6 @@ Os testes unitários do `PinVerifier` não precisam de celular nem de emulador: 
 - Esconder os dígitos na tela de PIN. Os campos são `numberPassword`, mas os números continuam visíveis depois de digitados
 - Pedir as permissões de notificação e de localização em segundo plano, que estão no manifesto mas não são pedidas
 - Limpar a configuração: tirar do manifesto as permissões que o código não usa e os serviços `LocationService` e `BlockOverlayService`, que nada inicia, e desligar no `accessibility_service_config.xml` o `canRetrieveWindowContent`, que o SafeMode não usa
-- Dividir a `MainActivity`, que tem 681 linhas
 - Escrever testes unitários para a conta da distância até a área. Ela aparece repetida no `LocationManager`, no `LocationService` e no `SafeModeAccessibilityService`, e cada cópia chama o `Location.distanceBetween` do Android
 
 ## Licença
