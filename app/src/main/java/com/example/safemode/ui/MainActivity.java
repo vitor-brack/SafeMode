@@ -17,8 +17,7 @@ import com.example.safemode.R;
 import com.example.safemode.data.AppPreferences;
 import com.example.safemode.security.LockScreenRules;
 import com.example.safemode.security.PinManager;
-import com.example.safemode.service.LockScreenService;
-import com.example.safemode.service.SafeModeService;
+import com.example.safemode.service.FeatureServices;
 import com.example.safemode.util.PermissionChecker;
 
 import java.util.HashSet;
@@ -44,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private AppPreferences preferences;
     private PinManager pinManager;
     private PinSetupController pinSetup;
+    private FeatureServices services;
 
     // Inicializa a activity, configura views e listeners
     @Override
@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             etSecondaryPin = findViewById(R.id.et_secondary_pin);
 
             preferences = new AppPreferences(this);
+            services = new FeatureServices(this, preferences);
             pinManager = new PinManager(this);
             pinSetup = new PinSetupController(this, pinManager);
 
@@ -322,10 +323,7 @@ public class MainActivity extends AppCompatActivity {
     // Ativa o modo seguro e inicia o serviço de monitoramento
     private void enableSafeMode() {
         try {
-            preferences.setSafeModeEnabled(true);
-
-            Intent serviceIntent = new Intent(this, SafeModeService.class);
-            startService(serviceIntent);
+            services.startSafeMode();
 
         } catch (Exception e) {
 
@@ -338,10 +336,7 @@ public class MainActivity extends AppCompatActivity {
     // Desativa o modo seguro e para o serviço de monitoramento
     private void disableSafeMode() {
         try {
-            preferences.setSafeModeEnabled(false);
-
-            Intent serviceIntent = new Intent(this, SafeModeService.class);
-            stopService(serviceIntent);
+            services.stopSafeMode();
 
         } catch (Exception e) {
         }
@@ -386,14 +381,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            preferences.setLockScreenEnabled(true);
-
-            Intent serviceIntent = new Intent(this, LockScreenService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
-            }
+            services.startLockScreen();
 
             Toast.makeText(this, "Bloqueio de tela ativado!", Toast.LENGTH_SHORT).show();
 
@@ -408,10 +396,7 @@ public class MainActivity extends AppCompatActivity {
     // Desativa a tela de bloqueio e para o serviço correspondente
     private void disableLockScreen() {
         try {
-            preferences.setLockScreenEnabled(false);
-
-            Intent serviceIntent = new Intent(this, LockScreenService.class);
-            stopService(serviceIntent);
+            services.stopLockScreen();
 
             Toast.makeText(this, "Bloqueio de tela desativado!", Toast.LENGTH_SHORT).show();
 
