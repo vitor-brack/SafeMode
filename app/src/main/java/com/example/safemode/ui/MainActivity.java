@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.safemode.R;
 import com.example.safemode.data.AppPreferences;
 import com.example.safemode.security.PinManager;
-import com.example.safemode.security.PinSetupRules;
 import com.example.safemode.service.LockScreenService;
 import com.example.safemode.service.SafeModeService;
 import com.example.safemode.util.PermissionChecker;
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private android.widget.EditText etSecondaryPin;
     private AppPreferences preferences;
     private PinManager pinManager;
+    private PinSetupController pinSetup;
 
     // Inicializa a activity, configura views e listeners
     @Override
@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
 
             preferences = new AppPreferences(this);
             pinManager = new PinManager(this);
+            pinSetup = new PinSetupController(this, pinManager);
 
         } catch (Exception e) {
         }
@@ -414,29 +415,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Salva a configuração do PIN principal após validações
+    // Salva a configuração do PIN principal e limpa o campo se gravou
     private void savePinConfiguration() {
         try {
-            String pin = etPin.getText().toString();
-
-            PinSetupRules.Result check = PinSetupRules.validatePrimary(pin,
-                    pinManager.hasSecondaryPin(), pinManager.verifySecondaryPin(pin));
-
-            if (check == PinSetupRules.Result.INVALID_LENGTH) {
-                Toast.makeText(this, "PIN deve ter 4 dígitos!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (check == PinSetupRules.Result.SAME_AS_SECONDARY) {
-                Toast.makeText(this, "PIN principal não pode ser igual ao PIN secundário!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (pinManager.setPin(pin)) {
-                Toast.makeText(this, "PIN configurado com sucesso!", Toast.LENGTH_SHORT).show();
+            if (pinSetup.savePrimary(etPin.getText().toString())) {
                 etPin.setText("");
-            } else {
-                Toast.makeText(this, "Erro ao salvar PIN", Toast.LENGTH_SHORT).show();
             }
 
         } catch (Exception e) {
@@ -444,34 +427,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Salva a configuração do PIN secundário após validações
+    // Salva a configuração do PIN secundário e limpa o campo se gravou
     private void saveSecondaryPinConfiguration() {
         try {
-            String pin = etSecondaryPin.getText().toString();
-
-            PinSetupRules.Result check = PinSetupRules.validateSecondary(pin,
-                    pinManager.hasPin(), pinManager.verifyPin(pin));
-
-            if (check == PinSetupRules.Result.INVALID_LENGTH) {
-                Toast.makeText(this, "PIN secundário deve ter 4 dígitos!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (check == PinSetupRules.Result.PRIMARY_NOT_SET) {
-                Toast.makeText(this, "Configure o PIN principal primeiro!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (check == PinSetupRules.Result.SAME_AS_PRIMARY) {
-                Toast.makeText(this, "PIN secundário deve ser diferente do principal!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (pinManager.setSecondaryPin(pin)) {
-                Toast.makeText(this, "PIN secundário configurado com sucesso!", Toast.LENGTH_SHORT).show();
+            if (pinSetup.saveSecondary(etSecondaryPin.getText().toString())) {
                 etSecondaryPin.setText("");
-            } else {
-                Toast.makeText(this, "Erro ao salvar PIN secundário", Toast.LENGTH_SHORT).show();
             }
 
         } catch (Exception e) {
