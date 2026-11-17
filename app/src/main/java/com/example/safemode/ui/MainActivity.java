@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -85,98 +86,9 @@ public class MainActivity extends AppCompatActivity {
                 preferences.setHiddenApps(new HashSet<>());
             }
 
-            boolean safeModeEnabled = preferences.isSafeModeEnabled();
-            boolean locationEnabled = preferences.isLocationEnabled();
-
-            if (switchSafeMode != null) {
-                boolean currentSafeModeState = switchSafeMode.isChecked();
-
-                if (currentSafeModeState != safeModeEnabled) {
-
-                    switchSafeMode.setOnCheckedChangeListener(null);
-
-                    switchSafeMode.setChecked(safeModeEnabled);
-
-                    switchSafeMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-                        if (isChecked) {
-                            checkPermissionsAndEnableSafeMode();
-                        } else {
-                            disableSafeMode();
-                        }
-                    });
-                } else {
-
-                    switchSafeMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-                        if (isChecked) {
-                            checkPermissionsAndEnableSafeMode();
-                        } else {
-                            disableSafeMode();
-                        }
-                    });
-                }
-            }
-
-            if (switchLocationControl != null) {
-                boolean currentLocationState = switchLocationControl.isChecked();
-
-                if (currentLocationState != locationEnabled) {
-
-                    switchLocationControl.setOnCheckedChangeListener(null);
-
-                    switchLocationControl.setChecked(locationEnabled);
-
-                    switchLocationControl.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        if (isChecked) {
-                            if (!PermissionChecker.hasLocation(this)) {
-                                showLocationPermissionDialog();
-                                switchLocationControl.setChecked(false);
-                                return;
-                            }
-                        }
-                        preferences.setLocationEnabled(isChecked);
-                    });
-
-                } else {
-                    switchLocationControl.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        if (isChecked) {
-                            if (!PermissionChecker.hasLocation(this)) {
-                                showLocationPermissionDialog();
-                                switchLocationControl.setChecked(false);
-                                return;
-                            }
-                        }
-                        preferences.setLocationEnabled(isChecked);
-                    });
-                }
-            }
-
-            boolean lockScreenEnabled = preferences.isLockScreenEnabled();
-            if (switchLockScreen != null) {
-                boolean currentLockScreenState = switchLockScreen.isChecked();
-
-                if (currentLockScreenState != lockScreenEnabled) {
-                    switchLockScreen.setOnCheckedChangeListener(null);
-                    switchLockScreen.setChecked(lockScreenEnabled);
-
-                    switchLockScreen.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        if (isChecked) {
-                            enableLockScreen();
-                        } else {
-                            disableLockScreen();
-                        }
-                    });
-                } else {
-                    switchLockScreen.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        if (isChecked) {
-                            enableLockScreen();
-                        } else {
-                            disableLockScreen();
-                        }
-                    });
-                }
-            }
+            bindSwitch(switchSafeMode, preferences.isSafeModeEnabled(), safeModeListener());
+            bindSwitch(switchLocationControl, preferences.isLocationEnabled(), locationListener());
+            bindSwitch(switchLockScreen, preferences.isLockScreenEnabled(), lockScreenListener());
 
         } catch (Exception e) {
 
@@ -197,6 +109,53 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception secondaryError) {
             }
         }
+    }
+
+    // Liga um switch ao estado salvo sem disparar o listener, e só depois instala o listener
+    private void bindSwitch(Switch toggle, boolean savedState, CompoundButton.OnCheckedChangeListener listener) {
+        if (toggle == null) {
+            return;
+        }
+        toggle.setOnCheckedChangeListener(null);
+        toggle.setChecked(savedState);
+        toggle.setOnCheckedChangeListener(listener);
+    }
+
+    // Listener do switch do Safe Mode: ligar confere as permissões, desligar para o serviço
+    private CompoundButton.OnCheckedChangeListener safeModeListener() {
+        return (buttonView, isChecked) -> {
+            if (isChecked) {
+                checkPermissionsAndEnableSafeMode();
+            } else {
+                disableSafeMode();
+            }
+        };
+    }
+
+    // Listener do switch de localização. Sem a permissão, mostra o diálogo e volta o switch para
+    // desligado; esse setChecked(false) dispara o próprio listener, que grava false
+    private CompoundButton.OnCheckedChangeListener locationListener() {
+        return (buttonView, isChecked) -> {
+            if (isChecked) {
+                if (!PermissionChecker.hasLocation(this)) {
+                    showLocationPermissionDialog();
+                    switchLocationControl.setChecked(false);
+                    return;
+                }
+            }
+            preferences.setLocationEnabled(isChecked);
+        };
+    }
+
+    // Listener do switch da tela de bloqueio
+    private CompoundButton.OnCheckedChangeListener lockScreenListener() {
+        return (buttonView, isChecked) -> {
+            if (isChecked) {
+                enableLockScreen();
+            } else {
+                disableLockScreen();
+            }
+        };
     }
 
     // Configura as barras do sistema para tela cheia
@@ -241,27 +200,11 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             if (switchSafeMode != null) {
-                switchSafeMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-                    if (isChecked) {
-                        checkPermissionsAndEnableSafeMode();
-                    } else {
-                        disableSafeMode();
-                    }
-                });
+                switchSafeMode.setOnCheckedChangeListener(safeModeListener());
             }
 
             if (switchLocationControl != null) {
-                switchLocationControl.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if (isChecked) {
-                        if (!PermissionChecker.hasLocation(this)) {
-                            showLocationPermissionDialog();
-                            switchLocationControl.setChecked(false);
-                            return;
-                        }
-                    }
-                    preferences.setLocationEnabled(isChecked);
-                });
+                switchLocationControl.setOnCheckedChangeListener(locationListener());
             }
 
             if (btnSelectApps != null) {
@@ -286,13 +229,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (switchLockScreen != null) {
-                switchLockScreen.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if (isChecked) {
-                        enableLockScreen();
-                    } else {
-                        disableLockScreen();
-                    }
-                });
+                switchLockScreen.setOnCheckedChangeListener(lockScreenListener());
             }
 
             if (btnSavePin != null) {
