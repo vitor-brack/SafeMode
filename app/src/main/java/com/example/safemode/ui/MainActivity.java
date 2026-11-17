@@ -17,10 +17,8 @@ import com.example.safemode.data.AppPreferences;
 import com.example.safemode.security.PinManager;
 import com.example.safemode.security.PinSetupRules;
 import com.example.safemode.service.LockScreenService;
-import com.example.safemode.service.SafeModeAccessibilityService;
 import com.example.safemode.service.SafeModeService;
-import com.example.safemode.util.AccessibilityUtils;
-import com.example.safemode.util.UsageStatsUtils;
+import com.example.safemode.util.PermissionChecker;
 
 import java.util.HashSet;
 
@@ -131,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
                     switchLocationControl.setOnCheckedChangeListener((buttonView, isChecked) -> {
                         if (isChecked) {
-                            if (!hasLocationPermission()) {
+                            if (!PermissionChecker.hasLocation(this)) {
                                 showLocationPermissionDialog();
                                 switchLocationControl.setChecked(false);
                                 return;
@@ -143,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     switchLocationControl.setOnCheckedChangeListener((buttonView, isChecked) -> {
                         if (isChecked) {
-                            if (!hasLocationPermission()) {
+                            if (!PermissionChecker.hasLocation(this)) {
                                 showLocationPermissionDialog();
                                 switchLocationControl.setChecked(false);
                                 return;
@@ -256,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             if (switchLocationControl != null) {
                 switchLocationControl.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (isChecked) {
-                        if (!hasLocationPermission()) {
+                        if (!PermissionChecker.hasLocation(this)) {
                             showLocationPermissionDialog();
                             switchLocationControl.setChecked(false);
                             return;
@@ -323,10 +321,10 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissionsAndEnableSafeMode() {
 
         try {
-            boolean hasLocation = hasLocationPermission();
-            boolean hasOverlay = hasOverlayPermission();
-            boolean hasUsageStats = hasUsageStatsPermission();
-            boolean hasAccessibility = hasAccessibilityPermission();
+            boolean hasLocation = PermissionChecker.hasLocation(this);
+            boolean hasOverlay = PermissionChecker.hasOverlay(this);
+            boolean hasUsageStats = PermissionChecker.hasUsageStats(this);
+            boolean hasAccessibility = PermissionChecker.hasAccessibility(this);
 
             if (hasLocation && hasOverlay && hasUsageStats && hasAccessibility) {
                 enableSafeMode();
@@ -382,51 +380,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Verifica se a permissão de localização foi concedida
-    private boolean hasLocationPermission() {
-        return androidx.core.content.ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == android.content.pm.PackageManager.PERMISSION_GRANTED;
-    }
-
-    // Verifica se a permissão de sobreposição foi concedida
-    private boolean hasOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return android.provider.Settings.canDrawOverlays(this);
-        }
-        return true;
-    }
-
-    // Verifica se o serviço de acessibilidade está habilitado
-    private boolean hasAccessibilityPermission() {
-        return AccessibilityUtils.isAccessibilityServiceEnabled(this, SafeModeAccessibilityService.class);
-    }
-
-    // Verifica se a permissão de estatísticas de uso foi concedida
-    private boolean hasUsageStatsPermission() {
-        return UsageStatsUtils.hasUsageStatsPermission(this);
-    }
-
-    // Verifica se o aplicativo está definido como launcher padrão do sistema
-    private boolean isDefaultLauncher() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-
-            android.content.pm.ResolveInfo resolveInfo = getPackageManager().resolveActivity(intent,
-                    android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
-
-            if (resolveInfo != null && resolveInfo.activityInfo != null) {
-                String currentLauncher = resolveInfo.activityInfo.packageName;
-                return currentLauncher.equals(getPackageName());
-            }
-
-            return false;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     // Ativa o modo seguro e inicia o serviço de monitoramento
     private void enableSafeMode() {
         try {
@@ -458,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
     // Ativa a tela de bloqueio após verificar requisitos de launcher e PINs
     private void enableLockScreen() {
         try {
-            if (!isDefaultLauncher()) {
+            if (!PermissionChecker.isDefaultLauncher(this)) {
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_launcher_required, null);
 
                 GoToSettingsDialog.show(this, dialogView, () -> {
